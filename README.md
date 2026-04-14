@@ -4,12 +4,11 @@ Dokumen ini adalah satu-satunya dokumentasi utama untuk pengumpulan.
 
 ## Ringkasan
 
-Simulasi ini mengimplementasikan 4 model komunikasi:
+Simulasi ini mengimplementasikan 3 model komunikasi:
 
 1. Request-Response
 2. Publish-Subscribe
 3. Message Passing
-4. Remote Procedure Call (RPC)
 
 Semua model dibandingkan menggunakan metrik real-time: total pesan, throughput, rata-rata latensi, drop, dan urutan event.
 
@@ -20,7 +19,6 @@ Semua model dibandingkan menggunakan metrik real-time: total pesan, throughput, 
 3. `models/request_response_model.py` -> logika Request-Response
 4. `models/publish_subscribe_model.py` -> logika Publish-Subscribe
 5. `models/message_passing_model.py` -> logika Message Passing
-6. `models/rpc_model.py` -> logika RPC
 
 ## Jalankan Aplikasi
 
@@ -30,7 +28,7 @@ python simulator.py
 
 ## Kontrol Simulasi
 
-1. Model Komunikasi: `request-response`, `publish-subscribe`, `message-passing`, `rpc`
+1. Model Komunikasi: `request-response`, `publish-subscribe`, `message-passing`
 2. Laju Event/detik
 3. Jumlah Subscriber (khusus Publish-Subscribe)
 4. Mulai, Jeda, Kirim 1 Event, Burst 20, Reset
@@ -40,14 +38,9 @@ python simulator.py
 
 File media disimpan di folder [docs/assets](docs/assets):
 
-1. [docs/assets/requestresponse.mp4](docs/assets/requestresponse.mp4)
-2. [docs/assets/publishsubscribe.mp4](docs/assets/publishsubscribe.mp4)
-3. [docs/assets/messagepassing.mp4](docs/assets/messagepassing.mp4)
-4. [docs/assets/rpc.mp4](docs/assets/rpc.mp4)
-5. [docs/assets/demo-request-response.gif](docs/assets/demo-request-response.gif)
-6. [docs/assets/demo-publish-subscribe.gif](docs/assets/demo-publish-subscribe.gif)
-7. [docs/assets/demo-message-passing.gif](docs/assets/demo-message-passing.gif)
-8. [docs/assets/demo-rpc.gif](docs/assets/demo-rpc.gif)
+1. [docs/assets/requestresponse.gif](docs/assets/requestresponse.gif)
+2. [docs/assets/publishsubscribe.gif](docs/assets/publishsubscribe.gif)
+3. [docs/assets/messagepassing.gif](docs/assets/messagepassing.gif)
 
 ## Cara Buka Media
 
@@ -59,11 +52,22 @@ File media disimpan di folder [docs/assets](docs/assets):
 Contoh embed GIF (akan bergerak di GitHub):
 
 ```md
-![Demo Publish-Subscribe](docs/assets/demo-publish-subscribe.gif)
+![Demo Publish-Subscribe](docs/assets/publishsubscribe.gif)
 ```
 
-Contoh link MP4:
+## Preview GIF
 
-```md
-[Lihat video Request-Response](docs/assets/requestresponse.mp4)
-```
+![Demo Request-Response](docs/assets/requestresponse.gif)
+
+Penjelasan:
+Pada cuplikan ini alur komunikasinya satu lawan satu. Sensor mengirim request ke service, lalu service mengirimkan response kembali. Polanya berurutan dan jelas titik awal-akhirnya. Bagian ini saya gunakan untuk menunjukkan bahwa Request-Response cocok ketika pengirim memang menunggu jawaban langsung.
+
+![Demo Publish-Subscribe](docs/assets/publishsubscribe.gif)
+
+Penjelasan:
+Di sini terlihat satu event dari publisher bisa diteruskan ke beberapa subscriber sekaligus. Saya menekankan bahwa pengirim tidak perlu tahu siapa penerimanya satu per satu. Model ini lebih pas untuk distribusi data ke banyak komponen, misalnya notifikasi atau telemetry yang dipantau banyak layanan.
+
+![Demo Message Passing](docs/assets/messagepassing.gif)
+
+Penjelasan:
+Cuplikan ini menunjukkan pesan bergerak bertahap antarkomponen, dari pengirim ke perantara, lalu ke pemroses. Karakter utamanya ada di alur pipeline: pesan tidak langsung selesai di satu titik, tetapi diteruskan sesuai tahapan. Ini relevan untuk proses antrian kerja atau pemrosesan data berantai.

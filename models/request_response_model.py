@@ -2,9 +2,12 @@ from models.common import Packet
 
 
 class RequestResponseModel:
+    """Model sinkron: request dari client lalu response kembali ke client."""
+
     model_name = "request-response"
 
     def emit_event(self, sim, msg_id: int) -> None:
+        """Buat paket request awal dari Sensor menuju Service lewat Gateway."""
         sim.metrics[self.model_name]["total"] += 1
         sim._push_seq(self.model_name, f"#{msg_id}:REQ")
 
@@ -25,6 +28,7 @@ class RequestResponseModel:
         sim.packets.append(packet)
 
     def on_arrive(self, sim, packet: Packet) -> None:
+        """Saat request tiba buat response, saat response tiba catat latensi."""
         if packet.phase == "request":
             path = [
                 (sim.nodes["service"].x, sim.nodes["service"].y),

@@ -2,9 +2,12 @@ from models.common import Packet
 
 
 class MessagePassingModel:
+    """Model pipeline: pesan bergerak bertahap antar komponen pemrosesan."""
+
     model_name = "message-passing"
 
     def emit_event(self, sim, msg_id: int) -> None:
+        """Kirim pesan awal dari Sensor ke Broker (queue entry)."""
         sim.metrics[self.model_name]["total"] += 1
         sim._push_seq(self.model_name, f"#{msg_id}:MSG")
 
@@ -25,6 +28,7 @@ class MessagePassingModel:
         sim.packets.append(packet)
 
     def on_arrive(self, sim, packet: Packet) -> None:
+        """Lanjutkan alur send -> route -> consume dan akhiri dengan metrik latency."""
         if packet.phase == "send":
             path = [
                 (sim.nodes["broker"].x, sim.nodes["broker"].y),

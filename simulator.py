@@ -5,16 +5,16 @@ from typing import Dict, List, Optional, Tuple
 from models.common import Node, Packet
 from models.message_passing_model import MessagePassingModel
 from models.publish_subscribe_model import PublishSubscribeModel
-from models.rpc_model import RPCModel
 from models.request_response_model import RequestResponseModel
 
 
 class DistributedCommSimulator:
+    """Simulator utama: mengatur UI, loop waktu, paket, dan metrik komparatif."""
+
     model_order = [
         "request-response",
         "publish-subscribe",
         "message-passing",
-        "rpc",
     ]
 
     def __init__(self, root: tk.Tk) -> None:
@@ -50,7 +50,6 @@ class DistributedCommSimulator:
         self.rr_model = RequestResponseModel()
         self.ps_model = PublishSubscribeModel()
         self.mp_model = MessagePassingModel()
-        self.rpc_model = RPCModel()
 
         self._build_ui()
         self._rebuild_subscribers()
@@ -96,7 +95,6 @@ class DistributedCommSimulator:
             "request-response",
             "publish-subscribe",
             "message-passing",
-            "rpc",
             command=lambda _: self._log("Model diubah: " + self.model_var.get()),
         )
         model_menu.config(width=20)
@@ -210,6 +208,7 @@ class DistributedCommSimulator:
         self._render_scene()
 
     def _new_metrics(self) -> Dict[str, Dict[str, object]]:
+        """Inisialisasi metrik per model agar reset dan startup konsisten."""
         metrics: Dict[str, Dict[str, object]] = {}
         for model in self.model_order:
             metrics[model] = {
@@ -239,6 +238,7 @@ class DistributedCommSimulator:
                 seq.pop(0)
 
     def emit_event(self, forced_model: Optional[str] = None) -> None:
+        """Dispatch event ke implementasi model aktif."""
         model = forced_model or self.model_var.get()
         msg_id = self.next_id
         self.next_id += 1
@@ -247,12 +247,11 @@ class DistributedCommSimulator:
             self.rr_model.emit_event(self, msg_id)
         elif model == "publish-subscribe":
             self.ps_model.emit_event(self, msg_id)
-        elif model == "message-passing":
-            self.mp_model.emit_event(self, msg_id)
         else:
-            self.rpc_model.emit_event(self, msg_id)
+            self.mp_model.emit_event(self, msg_id)
 
     def _arrive(self, packet: Packet) -> None:
+        """Teruskan paket yang tiba ke handler model sesuai jenis paket."""
         if packet.dropped:
             return
 
@@ -260,12 +259,11 @@ class DistributedCommSimulator:
             self.rr_model.on_arrive(self, packet)
         elif packet.model == "publish-subscribe":
             self.ps_model.on_arrive(self, packet)
-        elif packet.model == "message-passing":
-            self.mp_model.on_arrive(self, packet)
         else:
-            self.rpc_model.on_arrive(self, packet)
+            self.mp_model.on_arrive(self, packet)
 
     def _update_packets(self, dt: float) -> None:
+        """Gerakkan paket dan proses paket yang sudah mencapai ujung jalur."""
         alive: List[Packet] = []
         for p in self.packets:
             segs = len(p.path) - 1
@@ -303,6 +301,7 @@ class DistributedCommSimulator:
         )
 
     def _render_scene(self) -> None:
+        """Render node, edge, dan paket aktif untuk model yang sedang dipilih."""
         self.canvas.delete("all")
 
         model = self.model_var.get()
@@ -334,15 +333,6 @@ class DistributedCommSimulator:
             self._draw_node(self.nodes["broker"])
             self._draw_node(self.nodes["service"])
             self._draw_node(self.nodes["dashboard"])
-        else:
-            self._draw_edge(self.nodes["sensor"], self.nodes["gateway"])
-            self._draw_edge(self.nodes["gateway"], self.nodes["service"])
-            self._draw_edge(self.nodes["service"], self.nodes["gateway"], dashed=True)
-            self._draw_edge(self.nodes["gateway"], self.nodes["sensor"], dashed=True)
-
-            self._draw_node(self.nodes["sensor"])
-            self._draw_node(self.nodes["gateway"])
-            self._draw_node(self.nodes["service"])
 
         for p in self.packets:
             x, y = self._packet_pos(p)
@@ -363,6 +353,7 @@ class DistributedCommSimulator:
         )
 
     def _update_metrics_view(self) -> None:
+        """Hitung throughput/latensi tiap model lalu tampilkan analisis singkat."""
         elapsed = max(self.sim_time, 1e-6)
 
         lines: List[str] = []
@@ -399,7 +390,7 @@ class DistributedCommSimulator:
                 "ANALISIS OTOMATIS",
                 f"- Throughput unggul: {thr_winner}",
                 f"- Latensi unggul: {lat_winner}",
-                "- Request-Response dan RPC cocok untuk pola call-return.",
+                "- Request-Response cocok untuk pola call-return.",
                 "- Publish-Subscribe cocok untuk fanout event.",
                 "- Message-Passing cocok untuk pipeline antar komponen.",
             ]
@@ -411,6 +402,7 @@ class DistributedCommSimulator:
         self.metrics_text.insert("1.0", text)
 
     def _loop(self) -> None:
+        """Main loop simulasi: update waktu, generate event, update render+metrik."""
         now = time.perf_counter()
         dt = now - self.last_tick
         self.last_tick = now
