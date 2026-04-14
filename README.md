@@ -2,6 +2,10 @@
 
 Dokumen ini adalah satu-satunya dokumentasi utama untuk pengumpulan.
 
+Dokumen tambahan penjelasan kode proyek:
+
+1. [PENJELASAN_KODE.md](PENJELASAN_KODE.md)
+
 ## Ringkasan
 
 Simulasi ini mengimplementasikan 3 model komunikasi:
