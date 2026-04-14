@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulasi Komunikasi Sistem Terdistribusi</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-shape bg-shape-a"></div>
+  <div class="bg-shape bg-shape-b"></div>
+
+  <header class="hero">
+    <h1>Simulasi Interaktif Model Komunikasi Sistem Terdistribusi</h1>
+    <p>
+      Membandingkan <strong>Request-Response</strong> dan <strong>Publish-Subscribe</strong>
+      pada skenario smart city (sensor, API gateway, broker, dan dashboard).
+    </p>
+  </header>
+
+  <main class="layout">
+    <section class="panel controls">
+      <h2>Kontrol Simulasi</h2>
+
+      <label for="modelSelect">Model komunikasi aktif</label>
+      <select id="modelSelect">
+        <option value="request-response">Request-Response</option>
+        <option value="publish-subscribe">Publish-Subscribe</option>
+      </select>
+
+      <label for="messageRate">Laju event per detik: <span id="rateValue">2</span></label>
+      <input id="messageRate" type="range" min="1" max="10" value="2" />
+
+      <label for="subscriberCount">Jumlah subscriber (Pub-Sub): <span id="subValue">3</span></label>
+      <input id="subscriberCount" type="range" min="1" max="8" value="3" />
+
+      <div class="button-row">
+        <button id="startBtn">Mulai</button>
+        <button id="stopBtn" class="ghost">Jeda</button>
+        <button id="stepBtn" class="ghost">Kirim 1 Event</button>
+        <button id="resetBtn" class="danger">Reset</button>
+      </div>
+
+      <div class="button-row compact">
+        <button id="burstBtn">Burst 20 Event</button>
+        <button id="toggleLossBtn" class="ghost">Simulasi Gangguan: OFF</button>
+      </div>
+
+      <p class="hint">
+        Tip: ubah model saat simulasi berjalan untuk melihat perbedaan pola aliran data dan metrik.
+      </p>
+    </section>
+
+    <section class="panel canvas-panel">
+      <div class="canvas-header">
+        <h2>Visualisasi Aliran Pesan</h2>
+        <span id="clock">t = 0.0s</span>
+      </div>
+      <canvas id="simCanvas" width="980" height="520" aria-label="Visualisasi sistem terdistribusi"></canvas>
+      <div class="legend">
+        <span><i class="dot event"></i> Event</span>
+        <span><i class="dot response"></i> Response / Ack</span>
+        <span><i class="dot dropped"></i> Drop (gangguan)</span>
+      </div>
+    </section>
+
+    <section class="panel metrics">
+      <h2>Metrik Perbandingan</h2>
+      <div class="metrics-grid">
+        <article>
+          <h3>Request-Response</h3>
+          <ul>
+            <li>Total pesan: <strong id="rrTotal">0</strong></li>
+            <li>Throughput (msg/s): <strong id="rrThroughput">0.00</strong></li>
+            <li>Rata-rata latensi (ms): <strong id="rrLatency">0.00</strong></li>
+            <li>Pesan drop: <strong id="rrDrop">0</strong></li>
+            <li>Urutan event terakhir: <strong id="rrSeq">-</strong></li>
+          </ul>
+        </article>
+        <article>
+          <h3>Publish-Subscribe</h3>
+          <ul>
+            <li>Total pesan: <strong id="psTotal">0</strong></li>
+            <li>Throughput (msg/s): <strong id="psThroughput">0.00</strong></li>
+            <li>Rata-rata latensi (ms): <strong id="psLatency">0.00</strong></li>
+            <li>Pesan drop: <strong id="psDrop">0</strong></li>
+            <li>Urutan event terakhir: <strong id="psSeq">-</strong></li>
+          </ul>
+        </article>
+      </div>
+      <div class="analysis" id="analysisBox">
+        Jalankan simulasi untuk melihat analisis otomatis perbandingan model.
+      </div>
+    </section>
+
+    <section class="panel logs">
+      <h2>Log Peristiwa</h2>
+      <div id="logBox" class="log-box" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer>
+    Dibuat untuk tugas Sistem Terdistribusi - fokus pada akurasi alur pesan, visualisasi, dan perbandingan performa.
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
